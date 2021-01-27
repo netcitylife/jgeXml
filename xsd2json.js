@@ -755,7 +755,9 @@ module.exports = {
         // remove rootElement to leave ref'd definitions
         if (Array.isArray(src[xsPrefix + "schema"][xsPrefix + "element"])) {
             //src[xsPrefix+"schema"][xsPrefix+"element"] = src[xsPrefix+"schema"][xsPrefix+"element"].splice(0,1);
-            delete src[xsPrefix + "schema"][xsPrefix + "element"][0];
+            src[xsPrefix + "schema"][xsPrefix + "element"].forEach(function (entry, i) {
+                delete src[xsPrefix + "schema"][xsPrefix + "element"][i];
+            })
         }
         else {
             delete src[xsPrefix + "schema"][xsPrefix + "element"];
