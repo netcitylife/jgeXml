@@ -403,9 +403,9 @@ function doElement(src, parent, key) {
         if ((parent[xsPrefix + "annotation"]) && ((parent[xsPrefix + "annotation"][xsPrefix + "documentation"]))) {
             target.description = parent[xsPrefix + "annotation"][xsPrefix + "documentation"];
         }
-        if ((element[xsPrefix + "annotation"]) && ((element[xsPrefix + "annotation"][xsPrefix + "documentation"]))) {
-            target.description = (target.description ? target.decription + '\n' : '') + element[xsPrefix + "annotation"][xsPrefix + "documentation"];
-        }
+        // if ((element[xsPrefix + "annotation"]) && ((element[xsPrefix + "annotation"][xsPrefix + "documentation"]))) {
+        //     target.description = (target.description ? target.decription + '\n' : '') + element[xsPrefix + "annotation"][xsPrefix + "documentation"];
+        // }
 
         var enumSource;
 
