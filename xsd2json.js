@@ -646,6 +646,32 @@ function recurse(obj, parent, callback, depthFirst) {
     return obj;
 }
 
+function rootElemenCreate(obj, rootElement, src) {
+
+    obj.required = [rootElement["@name"]]
+    obj.properties = clone(rootElement);
+
+    recurse(obj, {}, function (obj, parent, key) {
+        renameObjects(obj, parent, key);
+    });
+
+    // support for schemas with just a top-level name and type (no complexType/sequence etc)
+    if (obj.properties["@type"]) {
+        target = obj; // tell it where to put the properties
+    } else {
+        delete obj.properties["@name"]; // to prevent root-element being picked up twice
+    }
+
+    // main processing of the root element
+    recurse(obj, {}, function (src, parent, key) { // was obj.properties
+        doElement(src, parent, key);
+    });
+
+    recurse(obj, {}, function (obj, parent, key) {
+        moveProperties(obj, parent, key);
+    });
+}
+
 module.exports = {
     getJsonSchema: function getJsonSchema(src, title, outputAttrPrefix, laxURIs, newXsPrefix) { // TODO convert to options parameter
         reset(outputAttrPrefix, laxURIs, newXsPrefix);
@@ -706,38 +732,25 @@ module.exports = {
         }
 
         var rootElement = src[xsPrefix + "schema"][xsPrefix + "element"];
-        if (Array.isArray(rootElement)) {
-            rootElement = rootElement[0];
-        }
-        var rootElementName = rootElement["@name"];
 
         obj.type = 'object';
-        obj.properties = clone(rootElement);
 
-        obj.required = [];
-        obj.required.push(rootElementName);
-        obj.additionalProperties = false;
-
-        recurse(obj, {}, function (obj, parent, key) {
-            renameObjects(obj, parent, key);
-        });
-
-        // support for schemas with just a top-level name and type (no complexType/sequence etc)
-        if (obj.properties["@type"]) {
-            target = obj; // tell it where to put the properties
+        if (Array.isArray(rootElement)) {
+            if (rootElement.length > 1) {
+                var objs = []
+                rootElement.forEach(function (entry) {
+                    var tmp = {}
+                    rootElemenCreate(tmp, entry, src)
+                    objs.push(tmp)
+                    delete tmp["type"]
+                });
+                obj.oneOf = objs
+            } else {
+                rootElemenCreate(obj, rootElement[0], src)
+            }
+        } else {
+            rootElemenCreate(obj, rootElement, src)
         }
-        else {
-            delete obj.properties["@name"]; // to prevent root-element being picked up twice
-        }
-
-        // main processing of the root element
-        recurse(obj, {}, function (src, parent, key) { // was obj.properties
-            doElement(src, parent, key);
-        });
-
-        recurse(obj, {}, function (obj, parent, key) {
-            moveProperties(obj, parent, key);
-        });
 
         // remove rootElement to leave ref'd definitions
         if (Array.isArray(src[xsPrefix + "schema"][xsPrefix + "element"])) {
