@@ -550,6 +550,8 @@ function clean(obj, parent, key) {
     if (key == '@type') delete obj[key];
     if (key == xsPrefix + "attribute") delete obj[key];
     if (key == xsPrefix + "restriction") delete obj[key];
+    if (key == xsPrefix + "annotation") delete obj[key];
+    if (key == xsPrefix + "sequence") delete obj[key];
     if (obj.properties && (Object.keys(obj.properties).length == 1) && obj.properties["#text"] && obj.properties["#text"]["$ref"]) {
         obj.properties["$ref"] = obj.properties["#text"]["$ref"];
         delete obj.properties["#text"]; // anonymous types
