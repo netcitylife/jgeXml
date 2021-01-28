@@ -9,6 +9,26 @@ var laxURIs = false;
 var defaultNameSpace = '';
 var xsPrefix = 'xs:';
 
+function dig(target, keys) {
+    let digged = target;
+
+    if (!Array.isArray(keys)) {
+        keys = [keys]
+    }
+
+    for (let key of keys) {
+        if (typeof digged === 'undefined' || digged === null) {
+            return undefined;
+        }
+        if (typeof key === 'function') {
+            digged = key(digged);
+        } else {
+            digged = digged[key];
+        }
+    }
+    return digged;
+}
+
 function reset(attrPrefix, laxURIprocessing, newXsPrefix) {
     target = null;
     attributePrefix = attrPrefix;
@@ -505,22 +525,30 @@ function moveAttributes(obj, parent, key) {
     }
 }
 
+function isChoice(node, elm) {
+    if (Array.isArray(node)){
+        for (let entry of node) {
+            isChoice(entry,  elm)
+        }
+    }
+
+    var el = dig(node, xsPrefix + elm)
+
+    if (el) {
+        for (var i = 0; i < el.length; i++) {
+            if (!el[i]["@isAttr"]) {
+                el[i]["@isChoice"] = true;
+            }
+        }
+    }
+}
+
 function processChoice(obj, parent, key) {
     if (key == xsPrefix + 'choice') {
-        var e = obj[key][xsPrefix + "element"] = toArray(obj[key][xsPrefix + "element"]);
-        for (var i = 0; i < e.length; i++) {
-            if (!e[i]["@isAttr"]) {
-                e[i]["@isChoice"] = true;
-            }
-        }
-        if (obj[key][xsPrefix + "group"]) {
-            var g = obj[key][xsPrefix + "group"] = toArray(obj[key][xsPrefix + "group"]);
-            for (var i = 0; i < g.length; i++) {
-                if (!g[i]["@isAttr"]) {
-                    g[i]["@isChoice"] = true;
-                }
-            }
-        }
+        var obj_node = dig(obj, key)
+
+        isChoice(obj_node, "element")
+        isChoice(obj_node, "group")
     }
 }
 
@@ -791,6 +819,6 @@ module.exports = {
             });
         }
 
-        return obj;
+       return obj;
     }
 };
