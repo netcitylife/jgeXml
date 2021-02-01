@@ -306,13 +306,13 @@ function doElement(src, parent, key) {
         return false;
     }
 
-    if ((key == xsPrefix + "any") || (key == xsPrefix + "anyAttribute")) {
+    if ((key === prefixed("any")) || (key === prefixed("anyAttribute"))) {
         if (target) target.additionalProperties = true; // target should always be defined at this point
     }
 
-    if (element[xsPrefix + "annotation"]) {
-        doc = element[xsPrefix + "annotation"][xsPrefix + "documentation"];
-    }
+    // документация по элементу
+    doc = dig(element, "annotation", "documentation")
+
 
     if (element["@name"]) {
         name = element["@name"];
@@ -320,19 +320,13 @@ function doElement(src, parent, key) {
     if (element["@type"]) {
         type = element["@type"];
     }
-    else if ((element["@name"]) && (element[xsPrefix + "simpleType"])) {
-        type = element[xsPrefix + "simpleType"][xsPrefix + "restriction"]["@base"];
-        simpleType = element[xsPrefix + "simpleType"][xsPrefix + "restriction"];
-        if (element[xsPrefix + "simpleType"][xsPrefix + "annotation"]) {
-            simpleType[xsPrefix + "annotation"] = element[xsPrefix + "simpleType"][xsPrefix + "annotation"];
-        }
+    else if ((element["@name"]) && (simpleType = dig(element, "simpleType", "restriction"))) {
+        type = simpleType["@base"];
+        simpleType[prefixed("annotation")] = dig(element, "simpleType", "annotation");
     }
-    else if ((element["@name"]) && (element[xsPrefix + "restriction"])) {
-        type = element[xsPrefix + "restriction"]["@base"];
-        simpleType = element[xsPrefix + "restriction"];
-        if (element[xsPrefix + "annotation"]) {
-            simpleType[xsPrefix + "annotation"] = element[xsPrefix + "annotation"];
-        }
+    else if ((element["@name"]) && (simpleType = dig(element, "restriction"))) {
+        type = simpleType["@base"];
+        simpleType[prefixed("annotation")] = dig(element, "annotation");
     }
     else if ((element[xsPrefix + "extension"]) && (element[xsPrefix + "extension"]["@base"])) {
         type = element[xsPrefix + "extension"]["@base"];
@@ -370,7 +364,7 @@ function doElement(src, parent, key) {
     }
 
     if (name && type) {
-        var isAttribute = (element["@isAttr"] == true);
+        var isAttribute = (element["@isAttr"] === true);
 
         initTarget(parent);
         var newTarget = target;
@@ -380,15 +374,15 @@ function doElement(src, parent, key) {
         var enumList = [];
         if (element["@minOccurs"]) minOccurs = parseInt(element["@minOccurs"], 10);
         if (element["@maxOccurs"]) maxOccurs = element["@maxOccurs"];
-        if (maxOccurs == 'unbounded') maxOccurs = Number.MAX_SAFE_INTEGER;
+        if (maxOccurs === 'unbounded') maxOccurs = Number.MAX_SAFE_INTEGER;
         if (isAttribute) {
-            if ((!element["@use"]) || (element["@use"] != 'required')) minOccurs = 0;
+            if ((!element["@use"]) || (element["@use"] !== 'required')) minOccurs = 0;
             if (element["@fixed"]) enumList.push(element["@fixed"]);
         }
         if (element["@isChoice"]) minOccurs = 0;
 
         var typeData = mapType(type);
-        if (isAttribute && (typeData.type == 'object')) {
+        if (isAttribute && (typeData.type === 'object')) {
             typeData.type = 'string'; // handle case where attribute has no defined type
         }
 
@@ -400,7 +394,7 @@ function doElement(src, parent, key) {
             typeData.enum = enumList;
         }
 
-        if (typeData.type == 'object') {
+        if (typeData.type === 'object') {
             typeData.properties = {};
             typeData.required = [];
             typeData.additionalProperties = false;
@@ -408,7 +402,7 @@ function doElement(src, parent, key) {
         }
 
         // handle @ref / attributeGroups
-        if ((key == xsPrefix + "attributeGroup") && (element["@ref"])) { // || (name == '$ref')) {
+        if ((key === xsPrefix + "attributeGroup") && (element["@ref"])) { // || (name == '$ref')) {
             if (!target.anyOf) target.anyOf = [];
             var newt = {};
             newt.properties = {};
@@ -430,10 +424,10 @@ function doElement(src, parent, key) {
         var enumSource;
 
         if (element[xsPrefix + "simpleType"] && element[xsPrefix + "simpleType"][xsPrefix + "restriction"] && element[xsPrefix + "simpleType"][xsPrefix + "restriction"][xsPrefix + "enumeration"]) {
-            var enumSource = element[xsPrefix + "simpleType"][xsPrefix + "restriction"][xsPrefix + "enumeration"];
+            enumSource = element[xsPrefix + "simpleType"][xsPrefix + "restriction"][xsPrefix + "enumeration"];
         }
         else if (element[xsPrefix + "restriction"] && element[xsPrefix + "restriction"][xsPrefix + "enumeration"]) {
-            var enumSource = element[xsPrefix + "restriction"][xsPrefix + "enumeration"];
+            enumSource = element[xsPrefix + "restriction"][xsPrefix + "enumeration"];
         }
 
         if (enumSource) {
@@ -720,6 +714,7 @@ module.exports = {
         recurse(src, {}, function (src, parent, key) {
             moveAttributes(src, parent, key);
         });
+
         recurse(src, {}, function (src, parent, key) {
             processChoice(src, parent, key);
         });
