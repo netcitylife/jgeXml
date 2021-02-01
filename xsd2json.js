@@ -9,12 +9,8 @@ var laxURIs = false;
 var defaultNameSpace = '';
 var xsPrefix = 'xs:';
 
-function dig(target, keys) {
+function dig(target, ...keys) {
     let digged = target;
-
-    if (!Array.isArray(keys)) {
-        keys = [keys]
-    }
 
     for (let key of keys) {
         if (typeof digged === 'undefined' || digged === null) {
@@ -23,10 +19,14 @@ function dig(target, keys) {
         if (typeof key === 'function') {
             digged = key(digged);
         } else {
-            digged = digged[key];
+            digged = digged[prefixed(key)];
         }
     }
     return digged;
+}
+
+function prefixed(value) {
+    return xsPrefix + value;
 }
 
 function reset(attrPrefix, laxURIprocessing, newXsPrefix) {
@@ -495,34 +495,36 @@ function doElement(src, parent, key) {
 }
 
 function moveAttributes(obj, parent, key) {
-    if (key == xsPrefix + 'attribute') {
+    if (key !== prefixed('attribute')) return;
 
-        obj[key] = toArray(obj[key]);
+    obj[key] = toArray(obj[key]);
 
-        var target;
+    let target;
 
-        if (obj[xsPrefix + "sequence"] && obj[xsPrefix + "sequence"][xsPrefix + "element"]) {
-            obj[xsPrefix + "sequence"][xsPrefix + "element"] = toArray(obj[xsPrefix + "sequence"][xsPrefix + "element"]);
-            target = obj[xsPrefix + "sequence"][xsPrefix + "element"];
-        }
-        if (obj[xsPrefix + "choice"] && obj[xsPrefix + "choice"][xsPrefix + "element"]) {
-            obj[xsPrefix + "choice"][xsPrefix + "element"] = toArray(obj[xsPrefix + "choice"][xsPrefix + "element"]);
-            target = obj[xsPrefix + "choice"][xsPrefix + "element"];
-        }
-
-        for (var i = 0; i < obj[key].length; i++) {
-            var attr = clone(obj[key][i]);
-            if (attributePrefix) {
-                attr["@name"] = attributePrefix + attr["@name"];
-            }
-            if (typeof attr == 'object') {
-                attr["@isAttr"] = true;
-            }
-            if (target) target.push(attr)
-            else obj[key][i] = attr;
-        }
-        if (target) delete obj[key];
+    let element = dig(obj, "sequence", "element");
+    if (element) {
+        target = toArray(element)
+        obj[prefixed("sequence")][prefixed("element")] = target;
     }
+
+    element = dig(obj, "choice", "element");
+    if (element) {
+        target = toArray(element)
+        obj[prefixed("choice")][prefixed("element")] = target;
+    }
+
+    for (let i = 0; i < obj[key].length; i++) {
+        let attr = clone(obj[key][i]);
+        if (attributePrefix) {
+            attr["@name"] = attributePrefix + attr["@name"];
+        }
+        if (typeof attr == 'object') {
+            attr["@isAttr"] = true;
+        }
+        if (target) target.push(attr)
+        else obj[key][i] = attr;
+    }
+    if (target) delete obj[key];
 }
 
 function isChoice(node, elm) {
@@ -532,7 +534,7 @@ function isChoice(node, elm) {
         }
     }
 
-    var el = dig(node, xsPrefix + elm)
+    var el = dig(node, elm)
 
     if (el) {
         for (var i = 0; i < el.length; i++) {
@@ -544,32 +546,32 @@ function isChoice(node, elm) {
 }
 
 function processChoice(obj, parent, key) {
-    if (key == xsPrefix + 'choice') {
-        var obj_node = dig(obj, key)
+    if (key !== prefixed('choice')) return;
 
-        isChoice(obj_node, "element")
-        isChoice(obj_node, "group")
-    }
+    const obj_node = dig(obj, 'choice');
+
+    isChoice(obj_node, "element");
+    isChoice(obj_node, "group");
 }
 
 function renameObjects(obj, parent, key) {
-    if (key == xsPrefix + 'complexType') {
-        var name = obj["@name"];
-        if (name) {
-            rename(obj, key, name);
-        }
-        else debuglog('complexType with no name');
+    if (key !== prefixed('complexType')) return;
+
+    const name = obj["@name"];
+    if (name) {
+        rename(obj, key, name);
     }
+    else debuglog('complexType with no name');
 }
 
 function moveProperties(obj, parent, key) {
-    if (key == xsPrefix + 'sequence') {
-        if (obj[key].properties) {
-            obj.properties = obj[key].properties;
-            obj.required = obj[key].required;
-            obj.additionalProperties = false;
-            delete obj[key];
-        }
+    if (key !== prefixed('sequence')) return;
+
+    if (obj[key].properties) {
+        obj.properties = obj[key].properties;
+        obj.required = obj[key].required;
+        obj.additionalProperties = false;
+        delete obj[key];
     }
 }
 

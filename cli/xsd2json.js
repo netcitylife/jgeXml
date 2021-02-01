@@ -25,7 +25,7 @@ catch (err) {
 }
 
 var laxUris = (filename.indexOf('.lax')>=0);
-var json = xsd.getJsonSchema(obj,filename,'',laxUris,'xs:');
+var json = xsd.getJsonSchema(obj,filename,'@',laxUris,'xs:');
 
 if (process.argv.length>3) {
 	var outfile = process.argv[3];
