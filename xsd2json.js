@@ -645,8 +645,15 @@ function clean(obj, parent, key) {
     }
 }
 
+/**
+ * Удалить пустые объекты
+ * @param obj
+ * @param parent
+ * @param key
+ * @return {number}
+ */
 function removeEmpties(obj, parent, key) {
-    var count = 0;
+    let count = 0;
     if (isEmpty(obj[key])) {
         delete obj[key];
         if (key === 'properties') {
@@ -659,7 +666,7 @@ function removeEmpties(obj, parent, key) {
     }
     else {
         if (Array.isArray(obj[key])) {
-            var newArray = [];
+            let newArray = [];
             for (var i = 0; i < obj[key].length; i++) {
                 if (typeof obj[key][i] !== 'undefined') {
                     newArray.push(obj[key][i]);
@@ -710,10 +717,11 @@ function recurse(obj, parent, callback, depthFirst) {
     return obj;
 }
 
-function rootElemenCreate(obj, rootElement, src) {
+function createRootElement(obj, rootElement) {
 
-    obj.required = [rootElement["@name"]]
     obj.properties = clone(rootElement);
+    obj.required = [rootElement["@name"]];
+    obj.additionalProperties = false;
 
     recurse(obj, {}, function (obj, parent, key) {
         renameObjects(obj, parent, key);
@@ -734,12 +742,15 @@ function rootElemenCreate(obj, rootElement, src) {
     recurse(obj, {}, function (obj, parent, key) {
         moveProperties(obj, parent, key);
     });
+
+    return obj;
 }
 
 module.exports = {
     getJsonSchema: function getJsonSchema(src, title, outputAttrPrefix, laxURIs, newXsPrefix) { // TODO convert to options parameter
         reset(outputAttrPrefix, laxURIs, newXsPrefix);
 
+        // определить основной xml префикс схемы
         for (let p in src) {
             if (p.indexOf(':') >= 0) {
                 let pp = p.split(':')[0];
@@ -747,6 +758,12 @@ module.exports = {
                     xsPrefix = pp + ':';
                 }
             }
+        }
+
+        // получить элемент схемы
+        const schema = dig(src, "schema");
+        if (!schema) {
+            throw new Error('Could find schema with given prefix: ' + xsPrefix);
         }
 
         recurse(src, {}, function (src, parent, key) {
@@ -757,35 +774,26 @@ module.exports = {
             processChoice(src, parent, key);
         });
 
-        /**
-         * Удалить конструкцию unique (в данный момент не поддерживается jsonschema)
-         */
-        /*recurse(src, {}, function (src, parent, key) {
+        // Удалить конструкцию unique (в данный момент не поддерживается jsonschema)
+        recurse(src, {}, function (src, parent, key) {
             removeUnique(src, parent, key);
-        });*/
+        });
 
-        var obj = {};
-        var id = '';
-
-        if (src[xsPrefix + "schema"]) {
-            id = src[xsPrefix + "schema"]["@targetNamespace"];
-            if (!id) {
-                id = src[xsPrefix + "schema"]["@xmlns"];
-            }
-        }
-        else throw new Error('Could find schema with given prefix: ' + xsPrefix);
-
-        for (var a in src[xsPrefix + "schema"]) {
+        // вычислить ID схемы и default namespace
+        const id = schema["@targetNamespace"] || schema["@xmlns"]
+        for (let a in schema) {
             if (a.startsWith('@xmlns:')) {
-                if (src[xsPrefix + "schema"][a] == id) {
+                if (schema[a] === id) {
                     defaultNameSpace = a.replace('@xmlns:', '');
                 }
             }
         }
 
-        //initial root object transformations
+        // подготовить объект схемы
+        const obj = {};
         obj.title = title;
         obj.$schema = 'http://json-schema.org/schema#'; //for latest, or 'http://json-schema.org/draft-04/schema#' for v4
+        obj.type = 'object';
         if (id) {
             obj.id = id;
         }
@@ -803,63 +811,43 @@ module.exports = {
             }
         }
 
-        var rootElement = src[xsPrefix + "schema"][xsPrefix + "element"];
-
-        obj.type = 'object';
-
+        // обработать дерево элементов
+        const rootElement = dig(schema, "element");
         if (Array.isArray(rootElement)) {
-            if (rootElement.length > 1) {
-                var objs = []
-                rootElement.forEach(function (entry) {
-                    var tmp = {}
-                    rootElemenCreate(tmp, entry, src)
-                    objs.push(tmp)
-                    delete tmp["type"]
-                });
-                obj.anyOf = objs
-            } else {
-                rootElemenCreate(obj, rootElement[0], src)
-            }
+            obj.anyOf = rootElement.map(element => createRootElement({}, element));
+            rootElement.forEach((element, i) => {
+                // удалить тип, так как он уже есть на верхнеуровневом объекте
+                delete obj.anyOf[i].type;
+                delete schema[prefixed("element")][i];
+            });
         } else {
-            rootElemenCreate(obj, rootElement, src)
+            createRootElement(obj, rootElement);
+            delete schema[prefixed("element")];
         }
 
-        // remove rootElement to leave ref'd definitions
-        if (Array.isArray(src[xsPrefix + "schema"][xsPrefix + "element"])) {
-            //src[xsPrefix+"schema"][xsPrefix+"element"] = src[xsPrefix+"schema"][xsPrefix+"element"].splice(0,1);
-            src[xsPrefix + "schema"][xsPrefix + "element"].forEach(function (entry, i) {
-                delete src[xsPrefix + "schema"][xsPrefix + "element"][i];
-            })
-        }
-        else {
-            delete src[xsPrefix + "schema"][xsPrefix + "element"];
-        }
-
+        // обработать типы
         obj.definitions = clone(src);
         obj.definitions.properties = {};
         target = obj.definitions;
-
-        // main processing of the ref'd elements
         recurse(obj.definitions, {}, function (src, parent, key) {
             doElement(src, parent, key);
         });
-
-        // correct for /definitions/properties
         obj.definitions = obj.definitions.properties;
 
+        // удалить лишние свойства
         recurse(obj, {}, function (obj, parent, key) {
             clean(obj, parent, key);
         });
+        delete obj.definitions[prefixed("schema")];
 
-        delete (obj.definitions[xsPrefix + "schema"]);
-
-        var count = 1;
-        while (count > 0) { // loop until we haven't removed any empties
+        // удалить пустые объекты
+        let count;
+        do {
             count = 0;
             recurse(obj, {}, function (obj, parent, key) {
                 count += removeEmpties(obj, parent, key);
             });
-        }
+        } while (count > 0)
 
         return obj;
     }
