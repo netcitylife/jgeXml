@@ -339,11 +339,6 @@ function initTarget(parent) {
  * @return {boolean}
  */
 function doElement(src, parent, key) {
-
-    //console.log(src);
-    //console.log(parent);
-    //console.log(key);
-
     let type;
     let name;
 
@@ -431,7 +426,9 @@ function doElement(src, parent, key) {
             if ((!element["@use"]) || (element["@use"] !== 'required')) minOccurs = 0;
             if (element["@fixed"]) enumList.push(element["@fixed"]);
         }
-        if (element["@isChoice"]) minOccurs = 0;
+        if (element["@isChoice"]) {
+            minOccurs = 0;
+        }
 
         var typeData = mapType(type);
         if (isAttribute && (typeData.type === 'object')) {
@@ -569,16 +566,20 @@ function moveAttributes(obj, parent, key) {
 function processChoice(obj, parent, key) {
     if (key !== prefixed('choice')) return;
 
-    const choice = dig(obj, 'choice');
-    ["element", "group"].forEach(element => {
-        if (choice[prefixed(element)]) {
-            let e = choice[prefixed(element)] = toArray(choice[prefixed(element)])
-            for (let i = 0; i < e.length; i++) {
-                if (!e[i]["@isAttr"]) {
-                    e[i]["@isChoice"] = true;
+    // если чойсов больше 1 на одном уровне, то будет массив из чойсов
+    const choices = toArray(dig(obj, 'choice'));
+
+    choices.forEach(choice => {
+        ["element", "group"].forEach(element => {
+            if (choice[prefixed(element)]) {
+                let e = choice[prefixed(element)] = toArray(choice[prefixed(element)]);
+                for (let i = 0; i < e.length; i++) {
+                    if (!e[i]["@isAttr"]) {
+                        e[i]["@isChoice"] = true;
+                    }
                 }
             }
-        }
+        });
     });
 }
 
