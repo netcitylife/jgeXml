@@ -9,6 +9,35 @@ var laxURIs = false;
 var defaultNameSpace = '';
 var xsPrefix = 'xs:';
 
+/**
+ * Привести данные к определенному типу из строки
+ * @param {string} value
+ * @param {string} type
+ * @return {*}
+ */
+function castValue(value, type) {
+    let result;
+
+    switch (type) {
+        case 'integer':
+            result = parseInt(value, 10);
+            break;
+        case 'number':
+            result = parseFloat(value);
+            break;
+        case 'boolean':
+            result = value === 'true';
+    }
+
+    return result;
+}
+
+/**
+ * Выполнить рекурсивный поиск значений по ключам во вложенных объектах
+ * @param {object} target
+ * @param {string} keys
+ * @return {undefined|*}
+ */
 function dig(target, ...keys) {
     let digged = target;
 
@@ -25,8 +54,13 @@ function dig(target, ...keys) {
     return digged;
 }
 
+/**
+ * Добавить xs префикс к строке
+ * @param {string} value
+ * @return {string}
+ */
 function prefixed(value) {
-    return xsPrefix + value;
+    return (value.startsWith('@') ? '' : xsPrefix) + value;
 }
 
 function reset(attrPrefix, laxURIprocessing, newXsPrefix) {
@@ -122,9 +156,14 @@ function finaliseType(typeData) {
     return typeData;
 }
 
+/**
+ * Смапить тип данных XSD на тип JSON с дополнительными ограничителями
+ * @param {String} type
+ * @return {{}}
+ */
 function mapType(type) {
 
-    var result = {};
+    const result = {};
     result.type = type;
 
     if (Array.isArray(type)) {
@@ -292,16 +331,28 @@ function initTarget(parent) {
     if (!target.allOf) target.allOf = [];
 }
 
+/**
+ * Обработать элемент дерева
+ * @param src    Текущий элемент в дереве обработки
+ * @param parent Родительский элемент в дереве обработки
+ * @param key    Имя текущего элемента (для )
+ * @return {boolean}
+ */
 function doElement(src, parent, key) {
-    var type = 'object';
-    var name;
 
-    var simpleType;
-    var doc;
-    var inAnyOf = -1; // used for attributeGroups - properties can get merged in here later, see mergeAnyOf
-    var inAllOf = (target && target.allOf) ? target.allOf.length - 1 : -1; // used for extension based composition
+    //console.log(src);
+    //console.log(parent);
+    //console.log(key);
 
-    var element = src[key];
+    let type;
+    let name;
+
+    let simpleType;
+    let doc;
+    let inAnyOf = -1; // used for attributeGroups - properties can get merged in here later, see mergeAnyOf
+    let inAllOf = (target && target.allOf) ? target.allOf.length - 1 : -1; // used for extension based composition
+
+    let element = src[key];
     if ((typeof element == 'undefined') || (null === element)) {
         return false;
     }
@@ -322,56 +373,57 @@ function doElement(src, parent, key) {
     }
     else if ((element["@name"]) && (simpleType = dig(element, "simpleType", "restriction"))) {
         type = simpleType["@base"];
+        // скопировать аннотацию в тип, чтобы он тоже содержал описание
+        // TODO: надо ли оно?
         simpleType[prefixed("annotation")] = dig(element, "simpleType", "annotation");
     }
     else if ((element["@name"]) && (simpleType = dig(element, "restriction"))) {
         type = simpleType["@base"];
+        // скопировать аннотацию в тип, чтобы он тоже содержал описание
+        // TODO: надо ли оно?
         simpleType[prefixed("annotation")] = dig(element, "annotation");
     }
-    else if ((element[xsPrefix + "extension"]) && (element[xsPrefix + "extension"]["@base"])) {
-        type = element[xsPrefix + "extension"]["@base"];
-        var tempType = finaliseType(mapType(type));
+    else if ((type = dig(element, "extension", "@base"))) {
+        const tempType = finaliseType(mapType(type));
         if (!tempType["$ref"]) {
             name = "#text"; // see anonymous types
         }
         else {
             var oldP = clone(target);
             oldP.additionalProperties = true;
-            for (var v in target) {
+            for (let v in target) {
                 delete target[v];
             }
             if (!target.allOf) target.allOf = [];
-            var newt = {};
+            let newt = {};
             target.allOf.push(newt);
             target.allOf.push(oldP);
             name = '#';
             inAllOf = 0; //target.allOf.length-1;
         }
     }
-    else if (element[xsPrefix + "union"]) {
-        var types = element[xsPrefix + "union"]["@memberTypes"].split(' ');
-        type = [];
-        for (var t in types) {
-            type.push(types[t]);
-        }
+    else if ((type = dig(element, "union", "@memberTypes"))) {
+        type = type.split(' ');
     }
-    else if (element[xsPrefix + "list"]) {
+    else if (element[prefixed("list")]) {
         type = 'string';
     }
     else if (element["@ref"]) {
         name = element["@ref"];
         type = element["@ref"];
+    } else {
+        type = 'object';
     }
 
     if (name && type) {
-        var isAttribute = (element["@isAttr"] === true);
+        let isAttribute = (element["@isAttr"] === true);
 
         initTarget(parent);
-        var newTarget = target;
+        let newTarget = target;
 
-        var minOccurs = 1;
-        var maxOccurs = 1;
-        var enumList = [];
+        let minOccurs = 1;
+        let maxOccurs = 1;
+        let enumList = [];
         if (element["@minOccurs"]) minOccurs = parseInt(element["@minOccurs"], 10);
         if (element["@maxOccurs"]) maxOccurs = element["@maxOccurs"];
         if (maxOccurs === 'unbounded') maxOccurs = Number.MAX_SAFE_INTEGER;
@@ -417,30 +469,23 @@ function doElement(src, parent, key) {
         if ((parent[xsPrefix + "annotation"]) && ((parent[xsPrefix + "annotation"][xsPrefix + "documentation"]))) {
             target.description = parent[xsPrefix + "annotation"][xsPrefix + "documentation"];
         }
-        // if ((element[xsPrefix + "annotation"]) && ((element[xsPrefix + "annotation"][xsPrefix + "documentation"]))) {
-        //     target.description = (target.description ? target.decription + '\n' : '') + element[xsPrefix + "annotation"][xsPrefix + "documentation"];
-        // }
 
-        var enumSource;
-
-        if (element[xsPrefix + "simpleType"] && element[xsPrefix + "simpleType"][xsPrefix + "restriction"] && element[xsPrefix + "simpleType"][xsPrefix + "restriction"][xsPrefix + "enumeration"]) {
-            enumSource = element[xsPrefix + "simpleType"][xsPrefix + "restriction"][xsPrefix + "enumeration"];
-        }
-        else if (element[xsPrefix + "restriction"] && element[xsPrefix + "restriction"][xsPrefix + "enumeration"]) {
-            enumSource = element[xsPrefix + "restriction"][xsPrefix + "enumeration"];
-        }
-
+        // обработка значение Enum
+        let enumSource = dig(element, "simpleType", "restriction", "enumeration") || dig(element, "restriction", "enumeration");
         if (enumSource) {
             typeData.description = '';
-            typeData["enum"] = [];
-            enumSource = toArray(enumSource); // handle 'const' case
-            for (var i = 0; i < enumSource.length; i++) {
-                typeData["enum"].push(enumSource[i]["@value"]);
-                if ((enumSource[i][xsPrefix + "annotation"]) && (enumSource[i][xsPrefix + "annotation"][xsPrefix + "documentation"])) {
-                    if (typeData.description) {
-                        typeData.description += '';
+            typeData.enum = [];
+            enumSource = toArray(enumSource);
+            for (let i = 0; i < enumSource.length; i++) {
+
+                typeData.enum.push(castValue(enumSource[i]["@value"], typeData.type));
+
+                let doc = dig(enumSource[i], "annotation", "documentation");
+                if (doc) {
+                    if (typeData.description !== '') {
+                        typeData.description += '\n';
                     }
-                    typeData.description += enumSource[i]["@value"] + ': ' + enumSource[i][xsPrefix + "annotation"][xsPrefix + "documentation"];
+                    typeData.description += enumSource[i]["@value"] + ': ' + doc;
                 }
             }
             if (!typeData.description) delete typeData.description;
@@ -521,31 +566,20 @@ function moveAttributes(obj, parent, key) {
     if (target) delete obj[key];
 }
 
-function isChoice(node, elm) {
-    if (Array.isArray(node)){
-        for (let entry of node) {
-            isChoice(entry,  elm)
-        }
-    }
-
-    var el = dig(node, elm)
-
-    if (el) {
-        for (var i = 0; i < el.length; i++) {
-            if (!el[i]["@isAttr"]) {
-                el[i]["@isChoice"] = true;
-            }
-        }
-    }
-}
-
 function processChoice(obj, parent, key) {
     if (key !== prefixed('choice')) return;
 
-    const obj_node = dig(obj, 'choice');
-
-    isChoice(obj_node, "element");
-    isChoice(obj_node, "group");
+    const choice = dig(obj, 'choice');
+    ["element", "group"].forEach(element => {
+        if (choice[prefixed(element)]) {
+            let e = choice[prefixed(element)] = toArray(choice[prefixed(element)])
+            for (let i = 0; i < e.length; i++) {
+                if (!e[i]["@isAttr"]) {
+                    e[i]["@isChoice"] = true;
+                }
+            }
+        }
+    });
 }
 
 function renameObjects(obj, parent, key) {
@@ -556,6 +590,10 @@ function renameObjects(obj, parent, key) {
         rename(obj, key, name);
     }
     else debuglog('complexType with no name');
+}
+
+function removeUnique(obj, parent, key) {
+    delete obj[prefixed("unique")];
 }
 
 function moveProperties(obj, parent, key) {
@@ -595,7 +633,7 @@ function clean(obj, parent, key) {
         obj.properties = {}; // gets removed later
         obj.required = []; // ditto
 
-        if (obj.anyOf.length == 1) {
+        if (obj.anyOf.length === 1) {
             if (obj.anyOf[0]["$ref"]) {
                 obj["$ref"] = clone(obj.anyOf[0]["$ref"]);
                 delete obj.type;
@@ -611,9 +649,9 @@ function removeEmpties(obj, parent, key) {
     var count = 0;
     if (isEmpty(obj[key])) {
         delete obj[key];
-        if (key == 'properties') {
+        if (key === 'properties') {
             if ((!obj.oneOf) && (!obj.anyOf)) {
-                if (obj.type == 'object') obj.type = 'string';
+                if (obj.type === 'object') obj.type = 'string';
                 delete obj.additionalProperties;
             }
         }
@@ -630,7 +668,7 @@ function removeEmpties(obj, parent, key) {
                     count++;
                 }
             }
-            if (newArray.length == 0) {
+            if (newArray.length === 0) {
                 delete obj[key];
                 count++;
             }
@@ -658,7 +696,7 @@ function recurse(obj, parent, callback, depthFirst) {
 
             if (typeof obj[key] === 'object') {
                 if (array) {
-                    for (var i in obj[key]) {
+                    for (let i in obj[key]) {
                         recurse(obj[key][i], obj[key], callback);
                     }
                 }
@@ -719,6 +757,13 @@ module.exports = {
             processChoice(src, parent, key);
         });
 
+        /**
+         * Удалить конструкцию unique (в данный момент не поддерживается jsonschema)
+         */
+        /*recurse(src, {}, function (src, parent, key) {
+            removeUnique(src, parent, key);
+        });*/
+
         var obj = {};
         var id = '';
 
@@ -771,7 +816,7 @@ module.exports = {
                     objs.push(tmp)
                     delete tmp["type"]
                 });
-                obj.oneOf = objs
+                obj.anyOf = objs
             } else {
                 rootElemenCreate(obj, rootElement[0], src)
             }
@@ -816,6 +861,6 @@ module.exports = {
             });
         }
 
-       return obj;
+        return obj;
     }
 };
