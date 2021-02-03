@@ -1,0 +1,1132 @@
+{
+  "title": "test/RNI_ZY_1.0.1.xsd",
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "id": "urn://rostelekom.ru/RNI_ZY/1.0.1",
+  "anyOf": [
+    {
+      "properties": {
+        "request": {
+          "description": "Корневой элемент запроса",
+          "$ref": "#/definitions/requestType"
+        }
+      },
+      "required": [
+        "request"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "properties": {
+        "FormResponse": {
+          "$ref": "#/definitions/FormResponseType"
+        }
+      },
+      "required": [
+        "FormResponse"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "requestType": {
+      "type": "object",
+      "description": "Root request element",
+      "properties": {
+        "Service": {
+          "description": "Служебная информация",
+          "$ref": "#/definitions/FormStepServiceType"
+        },
+        "VariantChoice": {
+          "description": "Вариант предоставления услуги",
+          "$ref": "#/definitions/VariantChoiceType"
+        },
+        "DelegateInfo": {
+          "description": "Категория заявителя",
+          "$ref": "#/definitions/DelegateInfoType"
+        },
+        "CompetentOrganization": {
+          "description": "Выбор уполномоченного органа, предоставляющего услугу",
+          "$ref": "#/definitions/CompetentOrganizationType"
+        },
+        "LandPlotData": {
+          "description": "Сведения о земельном участке",
+          "$ref": "#/definitions/LandPlotDataType"
+        },
+        "InformationAboutProjectOfLandSurveying": {
+          "description": "Сведения об объекте",
+          "$ref": "#/definitions/InformationAboutProjectOfLandSurveyingType"
+        },
+        "MethodGettingResults": {
+          "description": "Способ получения результата",
+          "$ref": "#/definitions/MethodGettingResultsType"
+        },
+        "Documents": {
+          "description": "Сведения о вложениях",
+          "$ref": "#/definitions/DocumentsType"
+        },
+        "@oktmo": {
+          "$ref": "#/definitions/oktmo"
+        },
+        "LegalData": {
+          "description": "Данные о юридическом лице",
+          "$ref": "#/definitions/LegalDataType"
+        },
+        "BusinessmanData": {
+          "description": "Данные об индивидуальном предпринимателе",
+          "$ref": "#/definitions/BusinessmanDataType"
+        },
+        "RecipientPersonalData": {
+          "description": "Данные о физическом лице",
+          "$ref": "#/definitions/RecipientPersonalDataType"
+        },
+        "DelegateLegalData": {
+          "description": "Данные о юридическом лице при заполнении сведений представителем",
+          "$ref": "#/definitions/DelegateLegalDataType"
+        },
+        "DelegateBusinessmanData": {
+          "description": "Данные об индивидуальном предпринимателе при заполнении сведений представителем",
+          "$ref": "#/definitions/DelegateBusinessmanDataType"
+        },
+        "DelegatePersonalData": {
+          "description": "Данные о физическом лице при заполнении сведений представителем",
+          "$ref": "#/definitions/DelegatePersonalDataType"
+        }
+      },
+      "required": [
+        "Service",
+        "VariantChoice",
+        "DelegateInfo",
+        "CompetentOrganization",
+        "MethodGettingResults",
+        "@oktmo"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "required": [
+                "LegalData"
+              ]
+            },
+            {
+              "required": [
+                "BusinessmanData"
+              ]
+            },
+            {
+              "required": [
+                "RecipientPersonalData"
+              ]
+            }
+          ]
+        },
+        {
+          "oneOf": [
+            {
+              "required": [
+                "DelegateLegalData"
+              ]
+            },
+            {
+              "required": [
+                "DelegateBusinessmanData"
+              ]
+            },
+            {
+              "required": [
+                "DelegatePersonalData"
+              ]
+            },
+            {
+              "properties": {
+                "DelegateLegalData": false,
+                "DelegateBusinessmanData": false,
+                "DelegatePersonalData": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "FormStepServiceType": {
+      "type": "object",
+      "description": "Служебная информация",
+      "properties": {
+        "currentDate": {
+          "description": "Текущая дата",
+          "$ref": "#/definitions/date"
+        },
+        "userType": {
+          "description": "Тип текущего пользователя",
+          "$ref": "#/definitions/userTypeType"
+        },
+        "orderId": {
+          "type": "integer",
+          "description": "Номер заявления"
+        },
+        "orderStatusCode": {
+          "type": "string",
+          "description": "Код режима внесения данных"
+        },
+        "orgBrief": {
+          "type": "boolean",
+          "description": "ЮЛ и ИП: Является ли генеральным директором"
+        },
+        "TargetId": {
+          "type": "string",
+          "description": "Код цели обращения"
+        },
+        "TargetName": {
+          "type": "string",
+          "description": "Наименование цели обращения"
+        },
+        "DepartmentId": {
+          "type": "string",
+          "description": "Код ведомства"
+        },
+        "DepartmentName": {
+          "type": "string",
+          "description": "Наименование ведомства"
+        },
+        "okato": {
+          "type": "string",
+          "description": "ОКАТО выбранного региона"
+        }
+      },
+      "required": [
+        "currentDate",
+        "userType",
+        "orderId",
+        "orderStatusCode",
+        "TargetId",
+        "TargetName",
+        "DepartmentId",
+        "DepartmentName",
+        "okato"
+      ],
+      "additionalProperties": false
+    },
+    "VariantChoiceType": {
+      "type": "object",
+      "description": "Вариант предоставления услуги",
+      "properties": {
+        "KP_VR_04": {
+          "description": "Какая цель использования земельного участка?",
+          "$ref": "#/definitions/KP_VR_04Type"
+        },
+        "KP_VR_05": {
+          "description": "Участок земли, на котором планируется размещение объекта, поставлен на кадастровый учет?",
+          "$ref": "#/definitions/KP_VR_05Type"
+        },
+        "KP_VR_06": {
+          "description": "Участок земли, который планируется использовать, поставлен на кадастровый учет?",
+          "$ref": "#/definitions/KP_VR_06Type"
+        },
+        "KP_VR_07": {
+          "description": "Земельный участок планируется использовать полностью?",
+          "$ref": "#/definitions/KP_VR_07Type"
+        },
+        "KP_VR_08": {
+          "description": "Требуется рубка деревьев или кустарников в связи с необходимостью использования участка?",
+          "$ref": "#/definitions/KP_VR_08Type"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LegalDataType": {
+      "type": "object",
+      "description": "Данные о юридическом лице",
+      "properties": {
+        "orgFullname": {
+          "description": "Полное наименование",
+          "$ref": "#/definitions/string-4000"
+        },
+        "orgShortname": {
+          "type": "string",
+          "description": "Краткое наименование"
+        },
+        "orgOgrn": {
+          "description": "ОГРН",
+          "$ref": "#/definitions/string-13"
+        },
+        "orgInn": {
+          "description": "ИНН",
+          "$ref": "#/definitions/string-10"
+        },
+        "orgKpp": {
+          "description": "КПП",
+          "$ref": "#/definitions/string-9"
+        },
+        "orgLegalform": {
+          "type": "string",
+          "description": "Код для справочника «Организационно-правовая форма»"
+        },
+        "orgLegalform.text_value": {
+          "type": "string",
+          "description": "Значение для справочника «Организационно-правовая форма»"
+        },
+        "orgPhone": {
+          "type": "string",
+          "description": "Телефон"
+        },
+        "orgEmail": {
+          "type": "string",
+          "description": "Электронная почта"
+        },
+        "RegAddress": {
+          "type": "string",
+          "description": "Юридический адрес"
+        },
+        "PostAddress": {
+          "type": "string",
+          "description": "Почтовый адрес"
+        },
+        "RepresentativeInfo": {
+          "description": "Данные об уполномоченном лице",
+          "$ref": "#/definitions/RepresentativeInfoType"
+        }
+      },
+      "required": [
+        "orgFullname",
+        "orgOgrn",
+        "orgInn",
+        "orgPhone",
+        "orgEmail"
+      ],
+      "additionalProperties": false
+    },
+    "RepresentativeInfoType": {
+      "type": "object",
+      "description": "Данные об уполномоченном лице",
+      "properties": {
+        "category": {
+          "description": "Категория уполномоченного лица",
+          "$ref": "#/definitions/LegalcategoryType"
+        },
+        "fullfio": {
+          "type": "string",
+          "description": "ФИО"
+        },
+        "lastname": {
+          "description": "Фамилия",
+          "$ref": "#/definitions/fio"
+        },
+        "firstname": {
+          "description": "Имя",
+          "$ref": "#/definitions/fio"
+        },
+        "middlename": {
+          "description": "Отчество",
+          "$ref": "#/definitions/fio"
+        },
+        "snils": {
+          "description": "СНИЛС",
+          "$ref": "#/definitions/snils"
+        },
+        "citizenship": {
+          "type": "string",
+          "description": "Гражданство"
+        },
+        "Phone": {
+          "type": "string",
+          "description": "Телефон"
+        },
+        "Email": {
+          "type": "string",
+          "description": "Электронная почта"
+        },
+        "DocumentPersonal": {
+          "description": "Данные ДУЛ",
+          "$ref": "#/definitions/DocumentPersonalType"
+        }
+      },
+      "required": [
+        "category",
+        "fullfio",
+        "lastname",
+        "firstname",
+        "Phone",
+        "Email"
+      ],
+      "additionalProperties": false
+    },
+    "BusinessmanDataType": {
+      "type": "object",
+      "description": "Данные об индивидуальном предпринимателе",
+      "properties": {
+        "orgFullname": {
+          "description": "Полное наименование",
+          "$ref": "#/definitions/string-4000"
+        },
+        "orgShortname": {
+          "type": "string",
+          "description": "Краткое наименование"
+        },
+        "orgOgrn": {
+          "description": "ОГРНИП",
+          "$ref": "#/definitions/string-15"
+        },
+        "orgInn": {
+          "description": "ИНН",
+          "$ref": "#/definitions/string-12"
+        },
+        "snils": {
+          "description": "СНИЛС",
+          "$ref": "#/definitions/snils"
+        },
+        "orgLegalform": {
+          "type": "string",
+          "description": "Код для справочника «Организационно-правовая форма»"
+        },
+        "orgLegalform.text_value": {
+          "type": "string",
+          "description": "Значение для справочника «Организационно-правовая форма»"
+        },
+        "orgPhone": {
+          "type": "string",
+          "description": "Телефон"
+        },
+        "orgEmail": {
+          "type": "string",
+          "description": "Электронная почта"
+        },
+        "PostAddress": {
+          "type": "string",
+          "description": "Почтовый адрес"
+        },
+        "DocumentPersonal": {
+          "description": "Данные ДУЛ",
+          "$ref": "#/definitions/DocumentPersonalType"
+        }
+      },
+      "required": [
+        "orgFullname",
+        "orgOgrn",
+        "orgInn",
+        "orgPhone",
+        "orgEmail"
+      ],
+      "additionalProperties": false
+    },
+    "DocumentPersonalType": {
+      "type": "object",
+      "description": "Данные ДУЛ",
+      "properties": {
+        "typeDoc": {
+          "type": "string",
+          "description": "Тип документа"
+        },
+        "nameDoc": {
+          "type": "string",
+          "description": "Наименование документа"
+        },
+        "docseries": {
+          "type": "string",
+          "description": "Серия"
+        },
+        "docnumber": {
+          "type": "string",
+          "description": "Номер"
+        },
+        "issuedate": {
+          "description": "Дата выдачи",
+          "$ref": "#/definitions/date"
+        },
+        "issueorg": {
+          "type": "string",
+          "description": "Кем выдан"
+        },
+        "validate": {
+          "description": "Срок действия",
+          "$ref": "#/definitions/date"
+        },
+        "issueidPassportRF": {
+          "type": "string",
+          "description": "Код подразделения"
+        }
+      },
+      "additionalProperties": false
+    },
+    "RecipientPersonalDataType": {
+      "type": "object",
+      "description": "Данные о физическом лице",
+      "properties": {
+        "fullfio": {
+          "type": "string",
+          "description": "ФИО"
+        },
+        "lastname": {
+          "description": "Фамилия",
+          "$ref": "#/definitions/fio"
+        },
+        "firstname": {
+          "description": "Имя",
+          "$ref": "#/definitions/fio"
+        },
+        "middlename": {
+          "description": "Отчество",
+          "$ref": "#/definitions/fio"
+        },
+        "snils": {
+          "description": "СНИЛС",
+          "$ref": "#/definitions/snils"
+        },
+        "gender": {
+          "description": "Пол",
+          "$ref": "#/definitions/gender"
+        },
+        "dateBirth": {
+          "description": "Дата рождения",
+          "$ref": "#/definitions/date"
+        },
+        "citizenship": {
+          "type": "string",
+          "description": "Гражданство"
+        },
+        "Phone": {
+          "type": "string",
+          "description": "Телефон"
+        },
+        "Email": {
+          "type": "string",
+          "description": "Электронная почта"
+        },
+        "regAddress": {
+          "type": "string",
+          "description": "Адрес регистрации"
+        },
+        "factAddress": {
+          "type": "string",
+          "description": "Адрес проживания"
+        },
+        "DocumentPersonal": {
+          "description": "Данные ДУЛ",
+          "$ref": "#/definitions/DocumentPersonalType"
+        }
+      },
+      "required": [
+        "fullfio",
+        "lastname",
+        "firstname",
+        "Phone",
+        "Email"
+      ],
+      "additionalProperties": false
+    },
+    "DelegateLegalDataType": {
+      "type": "object",
+      "description": "Данные о юридическом лице при заполнении сведений представителем",
+      "properties": {
+        "orgFullname": {
+          "description": "Полное наименование",
+          "$ref": "#/definitions/string-4000"
+        },
+        "orgShortname": {
+          "type": "string",
+          "description": "Краткое наименование"
+        },
+        "orgOgrn": {
+          "description": "ОГРН",
+          "$ref": "#/definitions/string-13"
+        },
+        "orgInn": {
+          "description": "ИНН",
+          "$ref": "#/definitions/string-10"
+        },
+        "orgKpp": {
+          "description": "КПП",
+          "$ref": "#/definitions/string-9"
+        },
+        "orgLegalform": {
+          "type": "string",
+          "description": "Код для справочника «Организационно-правовая форма»"
+        },
+        "orgLegalform.text_value": {
+          "type": "string",
+          "description": "Значение для справочника «Организационно-правовая форма»"
+        },
+        "RegAddress": {
+          "type": "string",
+          "description": "Юридический адрес"
+        },
+        "PostAddress": {
+          "type": "string",
+          "description": "Почтовый адрес"
+        }
+      },
+      "required": [
+        "orgFullname",
+        "orgOgrn",
+        "orgInn"
+      ],
+      "additionalProperties": false
+    },
+    "DelegateBusinessmanDataType": {
+      "type": "object",
+      "description": "Данные об индивидуальном предпринимателе при заполнении сведений представителем",
+      "properties": {
+        "orgFullname": {
+          "description": "Полное наименование",
+          "$ref": "#/definitions/string-4000"
+        },
+        "orgShortname": {
+          "type": "string",
+          "description": "Краткое наименование"
+        },
+        "orgOgrn": {
+          "description": "ОГРНИП",
+          "$ref": "#/definitions/string-15"
+        },
+        "orgInn": {
+          "description": "ИНН",
+          "$ref": "#/definitions/string-12"
+        },
+        "snils": {
+          "description": "СНИЛС",
+          "$ref": "#/definitions/snils"
+        },
+        "orgLegalform": {
+          "type": "string",
+          "description": "Код для справочника «Организационно-правовая форма»"
+        },
+        "orgLegalform.text_value": {
+          "type": "string",
+          "description": "Значение для справочника «Организационно-правовая форма»"
+        },
+        "PostAddress": {
+          "type": "string",
+          "description": "Почтовый адрес"
+        },
+        "citizenship": {
+          "type": "string",
+          "description": "Гражданство"
+        },
+        "DocumentPersonal": {
+          "description": "Данные ДУЛ",
+          "$ref": "#/definitions/DocumentPersonalType"
+        }
+      },
+      "required": [
+        "orgFullname",
+        "orgOgrn",
+        "orgInn"
+      ],
+      "additionalProperties": false
+    },
+    "DelegatePersonalDataType": {
+      "type": "object",
+      "description": "Данные о физическом лице при заполнении сведений представителем",
+      "properties": {
+        "fullfio": {
+          "type": "string",
+          "description": "ФИО"
+        },
+        "lastname": {
+          "type": "string",
+          "description": "Фамилия"
+        },
+        "firstname": {
+          "type": "string",
+          "description": "Имя"
+        },
+        "middlename": {
+          "type": "string",
+          "description": "Отчество"
+        },
+        "snils": {
+          "description": "СНИЛС",
+          "$ref": "#/definitions/snils"
+        },
+        "gender": {
+          "description": "Пол",
+          "$ref": "#/definitions/gender"
+        },
+        "dateBirth": {
+          "description": "Дата рождения",
+          "$ref": "#/definitions/date"
+        },
+        "citizenship": {
+          "type": "string",
+          "description": "Гражданство"
+        },
+        "regAddress": {
+          "type": "string",
+          "description": "Адрес регистрации"
+        },
+        "factAddress": {
+          "type": "string",
+          "description": "Адрес проживания"
+        },
+        "DocumentPersonal": {
+          "description": "Данные ДУЛ",
+          "$ref": "#/definitions/DocumentPersonalType"
+        }
+      },
+      "required": [
+        "fullfio",
+        "lastname",
+        "firstname"
+      ],
+      "additionalProperties": false
+    },
+    "CompetentOrganizationType": {
+      "type": "object",
+      "properties": {
+        "OrganizationID": {
+          "type": "string",
+          "description": "Код для выбранного значение справочника \"Уполномоченный орган, предоставляющий услугу\""
+        },
+        "Name": {
+          "type": "string",
+          "description": "Значение для выбранного значение справочника \"Уполномоченный орган, предоставляющий услугу\""
+        }
+      },
+      "required": [
+        "OrganizationID",
+        "Name"
+      ],
+      "additionalProperties": false
+    },
+    "LandPlotDataType": {
+      "type": "object",
+      "description": "Сведения о земельном участке",
+      "properties": {
+        "LandPlotCadastralNumberBlock": {
+          "description": "Кадастровый номер земельного участка",
+          "$ref": "#/definitions/LandPlotCadastralNumberBlockType"
+        },
+        "LandPlotCadastralQuarterBlock": {
+          "description": "Номер кадастрового квартала, в пределах которого планируется использовать земельный участок",
+          "$ref": "#/definitions/LandPlotCadastralQuarterBlockType"
+        },
+        "ObjectPlacementPeriod": {
+          "type": "string",
+          "description": "Срок размещения объекта"
+        },
+        "LandPlotTermOfUse": {
+          "type": "string",
+          "description": "Срок использования земельного участка"
+        },
+        "LandPlotCadastralQuarterPlannedPlaceObject": {
+          "description": "Номер кадастрового квартала, в пределах которого планируется разместить объект",
+          "$ref": "#/definitions/LandPlotCadastralQuarterPlannedPlaceObjectType"
+        },
+        "InformationAboutCuttingDownTrees": {
+          "type": "string",
+          "description": "Сведения о вырубке деревьев"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LandPlotCadastralNumberBlockType": {
+      "type": "object",
+      "description": "Кадастровый номер земельного участка",
+      "properties": {
+        "LandPlotCadastralNumber": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "description": "Кадастровый номер земельного участка"
+          }
+        }
+      },
+      "required": [
+        "LandPlotCadastralNumber"
+      ],
+      "additionalProperties": false
+    },
+    "LandPlotCadastralQuarterBlockType": {
+      "type": "object",
+      "description": "Номер кадастрового квартала, в пределах которого планируется использовать земельный участок",
+      "properties": {
+        "LandPlotCadastralQuarter": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "description": "Номер кадастрового квартала"
+          }
+        }
+      },
+      "required": [
+        "LandPlotCadastralQuarter"
+      ],
+      "additionalProperties": false
+    },
+    "LandPlotCadastralQuarterPlannedPlaceObjectType": {
+      "type": "object",
+      "description": "Номер кадастрового квартала, в пределах которого планируется разместить объект",
+      "properties": {
+        "LandPlotCadastralQuarter": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "description": "Номер кадастрового квартала"
+          }
+        }
+      },
+      "required": [
+        "LandPlotCadastralQuarter"
+      ],
+      "additionalProperties": false
+    },
+    "InformationAboutProjectOfLandSurveyingType": {
+      "type": "object",
+      "properties": {
+        "TypeOfObject": {
+          "type": "string",
+          "description": "Вид размещаемого объекта"
+        }
+      },
+      "required": [
+        "TypeOfObject"
+      ],
+      "additionalProperties": false
+    },
+    "MethodGettingResultsType": {
+      "type": "object",
+      "description": "Способ получения результата",
+      "properties": {
+        "IsPaperDocumentRequired": {
+          "type": "boolean",
+          "description": "Получить дополнительно результат на бумажном носителе"
+        },
+        "FieldRadio": {
+          "description": "Способ получения результата",
+          "$ref": "#/definitions/FieldRadioType"
+        }
+      },
+      "required": [
+        "IsPaperDocumentRequired"
+      ],
+      "additionalProperties": false
+    },
+    "DocumentsType": {
+      "type": "object",
+      "description": "Сведения о вложениях",
+      "properties": {
+        "SchemeOflandBoundariesOnCadastralPlan": {
+          "type": "array",
+          "items": {
+            "description": "Схема границ предполагаемых к использованию земель или части земельного участка на кадастровом плане территории с указанием координат характерных точек границ территории",
+            "$ref": "#/definitions/DocInfoType"
+          }
+        },
+        "DelegateLegalDocFile": {
+          "type": "array",
+          "items": {
+            "description": "Нотариально заверенная доверенность, подтверждающая права сотрудника организации на получение услуги",
+            "$ref": "#/definitions/DocInfoType"
+          }
+        },
+        "DelegateLegalDocSigFile": {
+          "type": "array",
+          "items": {
+            "description": "Откреплённая усиленная квалифицированная электронная подпись правомочного должностного лица (нотариуса)",
+            "$ref": "#/definitions/DocInfoType"
+          }
+        },
+        "DelegateDocFile": {
+          "type": "array",
+          "items": {
+            "description": "Документ, подтверждающий полномочия представителя на подачу заявления",
+            "$ref": "#/definitions/DocInfoType"
+          }
+        },
+        "DelegateDocSigFile": {
+          "type": "array",
+          "items": {
+            "description": "Откреплённая усиленная квалифицированная электронная подпись правомочного должностного лица (нотариуса)",
+            "$ref": "#/definitions/DocInfoType"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DocInfoType": {
+      "type": "object",
+      "description": "Сведения о вложении",
+      "properties": {
+        "CodeDocument": {
+          "type": "string",
+          "description": "Код документа"
+        },
+        "Name": {
+          "type": "string",
+          "description": "Имя файла документа"
+        },
+        "URL": {
+          "type": "string",
+          "description": "Относительный путь к файлу внутри архива"
+        },
+        "type": {
+          "type": "string",
+          "description": "MIME-тип контента"
+        }
+      },
+      "required": [
+        "CodeDocument",
+        "Name",
+        "URL",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "FormResponseType": {
+      "type": "object",
+      "description": "Ответ на подачу заявления или запроса на отмену заявления или текстового сообщения от заявителя в ведомство",
+      "properties": {
+        "changeOrderInfo": {
+          "$ref": "#/definitions/changeOrderInfoType"
+        }
+      },
+      "required": [
+        "changeOrderInfo"
+      ],
+      "additionalProperties": false
+    },
+    "changeOrderInfoType": {
+      "type": "object",
+      "description": "Информация для изменения статуса заявления в ЛК ЕПГУ",
+      "properties": {
+        "orderId": {
+          "$ref": "#/definitions/orderIdType"
+        },
+        "statusCode": {
+          "$ref": "#/definitions/statusCodeType"
+        },
+        "comment": {
+          "$ref": "#/definitions/string-2048"
+        },
+        "cancelAllowed": {
+          "type": "boolean"
+        },
+        "sendMessageAllowed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "orderId",
+        "statusCode"
+      ],
+      "additionalProperties": false
+    },
+    "orderIdType": {
+      "type": "object",
+      "properties": {
+        "pguId": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pguId"
+      ],
+      "additionalProperties": false
+    },
+    "statusCodeType": {
+      "type": "object",
+      "description": "Новый статус заявления",
+      "properties": {
+        "orgCode": {
+          "description": "Код ведомственного статуса",
+          "$ref": "#/definitions/string-20"
+        },
+        "techCode": {
+          "description": "Код статуса ЕПГУ",
+          "$ref": "#/definitions/string-20"
+        }
+      },
+      "required": [
+        "orgCode",
+        "techCode"
+      ],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "orgCode"
+          ]
+        },
+        {
+          "required": [
+            "techCode"
+          ]
+        }
+      ]
+    },
+    "userTypeType": {
+      "type": "string",
+      "description": "PERSON_RF: Физическое лицо\nBUSINESSMAN: Индивидуальный предприниматель\nEMPLOYEE: Юридическое лицо"
+    },
+    "KP_VR_04Type": {
+      "type": "integer",
+      "maximum": 127,
+      "minimum": -128,
+      "description": "1: Размещение объектов, для которых не требуется получение разрешения на строительство\n2: Проведение инженерных изысканий либо капитального или текущего ремонта линейного объекта\n3: Строительство временных сооружений для обеспечения строительства объектов федерального, регионального или местного значения\n4: Возведение некапитальных сооружений, предназначенных для осуществления товарной аквакультуры (рыбоводства)\n5: Осуществление геологического изучения недр",
+      "enum": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "KP_VR_05Type": {
+      "type": "integer",
+      "maximum": 127,
+      "minimum": -128,
+      "description": "1: Объект планируется разместить на землях государственной неразграниченной собственности\n2: Участок стоит на кадастровом учете",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "KP_VR_06Type": {
+      "type": "integer",
+      "maximum": 127,
+      "minimum": -128,
+      "description": "1: Планируется использовать земли государственной неразграниченной собственности\n2: Участок стоит на кадастровом учете",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "KP_VR_07Type": {
+      "type": "integer",
+      "maximum": 127,
+      "minimum": -128,
+      "description": "1: Да, планируется использовать весь участок\n2: Нет, планируется использовать только часть участка",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "KP_VR_08Type": {
+      "type": "integer",
+      "maximum": 127,
+      "minimum": -128,
+      "description": "1: Вырубка требуется\n2: Вырубка не требуется",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "DelegateInfoType": {
+      "type": "integer",
+      "maximum": 127,
+      "minimum": -128,
+      "description": "Категория заявителя",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "LegalcategoryType": {
+      "type": "integer",
+      "maximum": 127,
+      "minimum": -128,
+      "description": "1: Руководитель организации\n2: Сотрудник организации",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "FieldRadioType": {
+      "type": "integer",
+      "maximum": 127,
+      "minimum": -128,
+      "description": "Способ получения результата",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "oktmo": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 11
+    },
+    "snils": {
+      "type": "string",
+      "maxLength": 14,
+      "pattern": "[0-9]{3}[-][0-9]{3}[-][0-9]{3} [0-9]{2}"
+    },
+    "inn": {
+      "type": "string",
+      "maxLength": 10,
+      "pattern": "[0-9]{10}"
+    },
+    "gender": {
+      "type": "integer",
+      "maximum": 127,
+      "minimum": -128,
+      "description": "1: Мужской\n2: Женский",
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "ogrn": {
+      "type": "string",
+      "maxLength": 13,
+      "pattern": "[0-9]{13}"
+    },
+    "kpp": {
+      "type": "string",
+      "maxLength": 13,
+      "pattern": "[0-9]{9}"
+    },
+    "date": {
+      "type": "string",
+      "maxLength": 10,
+      "pattern": "[0-9]{2}[.][0-9]{2}[.][0-9]{4}"
+    },
+    "fio": {
+      "type": "string",
+      "maxLength": 60
+    },
+    "string-9": {
+      "type": "string",
+      "maxLength": 9
+    },
+    "string-10": {
+      "type": "string",
+      "maxLength": 10
+    },
+    "string-12": {
+      "type": "string",
+      "maxLength": 12
+    },
+    "string-13": {
+      "type": "string",
+      "maxLength": 13
+    },
+    "string-15": {
+      "type": "string",
+      "maxLength": 15
+    },
+    "string-20": {
+      "type": "string",
+      "maxLength": 20
+    },
+    "string-36": {
+      "type": "string",
+      "maxLength": 36
+    },
+    "string-2048": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "string-4000": {
+      "type": "string",
+      "maxLength": 4000
+    }
+  }
+}

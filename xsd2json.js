@@ -16,7 +16,7 @@ var xsPrefix = 'xs:';
  * @return {*}
  */
 function castValue(value, type) {
-    let result;
+    let result = value;
 
     switch (type) {
         case 'integer':
@@ -785,7 +785,7 @@ module.exports = {
         obj.$schema = 'http://json-schema.org/schema#'; //for latest, or 'http://json-schema.org/draft-04/schema#' for v4
         obj.type = 'object';
         if (id) {
-            obj.$id = id;
+            obj.id = id;
         }
         if (src[xsPrefix + "schema"] && src[xsPrefix + "schema"][xsPrefix + "annotation"]) {
             obj.description = '';
