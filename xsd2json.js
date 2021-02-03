@@ -107,8 +107,7 @@ function toArray(item) {
             newitem.push(item);
         }
         return newitem;
-    }
-    else {
+    } else {
         return item;
     }
 }
@@ -133,12 +132,10 @@ function finaliseType(typeData) {
     if ((typeData.type == 'string') || (typeData.type == 'boolean') || (typeData.type == 'array') || (typeData.type == 'object')
         || (typeData.type == 'integer') || (typeData.type == 'number') || (typeData.type == 'null')) {
         //typeData.type = typeData.type;
-    }
-    else {
+    } else {
         if (typeData.type.startsWith('xml:')) { // id, lang, space, base, Father
             typeData.type = 'string';
-        }
-        else {
+        } else {
             var tempType = typeData.type;
             if (defaultNameSpace) {
                 tempType = tempType.replace(defaultNameSpace + ':', '');
@@ -146,8 +143,7 @@ function finaliseType(typeData) {
             if (tempType.indexOf(':') >= 0) {
                 var tempComp = tempType.split(':');
                 typeData["$ref"] = tempComp[0] + '.json#/definitions/' + tempComp[1]; //'/'+typeData.type.replace(':','/');
-            }
-            else {
+            } else {
                 typeData["$ref"] = '#/definitions/' + tempType;
             }
             delete typeData.type;
@@ -172,60 +168,47 @@ function mapType(type) {
         for (var t in type) {
             result.oneOf.push(finaliseType(mapType(type[t])));
         }
-    }
-    else if (type == xsPrefix + 'integer') {
+    } else if (type == xsPrefix + 'integer') {
         result.type = 'integer';
-    }
-    else if (type == xsPrefix + 'positiveInteger') {
+    } else if (type == xsPrefix + 'positiveInteger') {
         result.type = 'integer';
         result.minimum = 1;
-    }
-    else if (type == xsPrefix + 'nonPositiveInteger') {
+    } else if (type == xsPrefix + 'nonPositiveInteger') {
         result.type = 'integer';
         result.maximum = 0;
-    }
-    else if (type == xsPrefix + 'negativeInteger') {
+    } else if (type == xsPrefix + 'negativeInteger') {
         result.type = 'integer';
         result.maximum = -1;
-    }
-    else if (type == xsPrefix + 'nonNegativeInteger') {
+    } else if (type == xsPrefix + 'nonNegativeInteger') {
         result.type = 'integer';
         result.minimum = 0;
-    }
-    else if (type == xsPrefix + 'unsignedInt') {
+    } else if (type == xsPrefix + 'unsignedInt') {
         result.type = 'integer';
         result.minimum = 0;
         result.maximum = 4294967295;
-    }
-    else if (type == xsPrefix + 'unsignedShort') {
+    } else if (type == xsPrefix + 'unsignedShort') {
         result.type = 'integer';
         result.minimum = 0;
         result.maximum = 65535;
-    }
-    else if (type == xsPrefix + 'unsignedByte') {
+    } else if (type == xsPrefix + 'unsignedByte') {
         result.type = 'integer';
         result.minimum = 0;
         result.maximum = 255;
-    }
-    else if (type == xsPrefix + 'int') {
+    } else if (type == xsPrefix + 'int') {
         result.type = 'integer';
         result.maximum = 2147483647;
         result.minimum = -2147483648;
-    }
-    else if (type == xsPrefix + 'short') {
+    } else if (type == xsPrefix + 'short') {
         result.type = 'integer';
         result.maximum = 32767;
         result.minimum = -32768;
-    }
-    else if (type == xsPrefix + 'byte') {
+    } else if (type == xsPrefix + 'byte') {
         result.type = 'integer';
         result.maximum = 127;
         result.minimum = -128;
-    }
-    else if (type == xsPrefix + 'long') {
+    } else if (type == xsPrefix + 'long') {
         result.type = 'integer';
-    }
-    else if (type == xsPrefix + 'unsignedLong') {
+    } else if (type == xsPrefix + 'unsignedLong') {
         result.type = 'integer';
         result.minimum = 0;
     }
@@ -258,36 +241,28 @@ function mapType(type) {
     if (type == xsPrefix + 'date') {
         result.type = 'string';
         result.pattern = '^[0-9]{4}\-[0-9]{2}\-[0-9]{2}.*$'; //timezones
-    }
-    else if (type == xsPrefix + 'dateTime') {
+    } else if (type == xsPrefix + 'dateTime') {
         result.type = 'string';
         result.format = 'date-time';
-    }
-    else if (type == xsPrefix + 'time') {
+    } else if (type == xsPrefix + 'time') {
         result.type = 'string';
         result.pattern = '^[0-9]{2}\:[0-9]{2}:[0-9]{2}.*$'; // timezones
-    }
-    else if (type == xsPrefix + 'duration') {
+    } else if (type == xsPrefix + 'duration') {
         result.type = 'string';
         result.pattern = '^(-)?P(?:([0-9,.]*)Y)?(?:([0-9,.]*)M)?(?:([0-9,.]*)W)?(?:([0-9,.]*)D)?(?:T(?:([0-9,.]*)H)?(?:([0-9,.]*)M)?(?:([0-9,.]*)S)?)?$';
-    }
-    else if (type == xsPrefix + 'gDay') {
+    } else if (type == xsPrefix + 'gDay') {
         result.type = 'string';
         result.pattern = '[0-9]{2}';
-    }
-    else if (type == xsPrefix + 'gMonth') {
+    } else if (type == xsPrefix + 'gMonth') {
         result.type = 'string';
         result.pattern = '[0-9]{2}';
-    }
-    else if (type == xsPrefix + 'gMonthDay') {
+    } else if (type == xsPrefix + 'gMonthDay') {
         result.type = 'string';
         result.pattern = '[0-9]{2}\-[0-9]{2}';
-    }
-    else if (type == xsPrefix + 'gYear') {
+    } else if (type == xsPrefix + 'gYear') {
         result.type = 'string';
         result.pattern = '[0-9]{4}';
-    }
-    else if (type == xsPrefix + 'gYearMonth') {
+    } else if (type == xsPrefix + 'gYearMonth') {
         result.type = 'string';
         result.pattern = '[0-9]{4}\-[0-9]{2}';
     }
@@ -299,12 +274,10 @@ function mapType(type) {
 
     if (type == xsPrefix + 'decimal') {
         result.type = 'number';
-    }
-    else if (type == xsPrefix + 'double') {
+    } else if (type == xsPrefix + 'double') {
         result.type = 'number';
         result.format = 'double';
-    }
-    else if (type == xsPrefix + 'float') {
+    } else if (type == xsPrefix + 'float') {
         result.type = 'number';
         result.format = 'float';
     }
@@ -339,51 +312,51 @@ function initTarget(parent) {
  * @return {boolean}
  */
 function doElement(src, parent, key) {
-    let type;
-    let name;
-
-    let simpleType;
-    let doc;
-    let inAnyOf = -1; // used for attributeGroups - properties can get merged in here later, see mergeAnyOf
-    let inAllOf = (target && target.allOf) ? target.allOf.length - 1 : -1; // used for extension based composition
 
     let element = src[key];
     if ((typeof element == 'undefined') || (null === element)) {
         return false;
     }
 
+    let type;
+    let name;
+    let simpleType;
+    // used for attributeGroups - properties can get merged in here later, see mergeAnyOf
+    let inAnyOf = -1;
+    // used for extension based composition
+    // TODO: корректная обработка extension вместе с choice
+    let inAllOf = (target && target.allOf && !target["__hasChoice__"]) ? target.allOf.length - 1 : -1;
+
     if ((key === prefixed("any")) || (key === prefixed("anyAttribute"))) {
-        if (target) target.additionalProperties = true; // target should always be defined at this point
+        // target should always be defined at this point
+        if (target) target.additionalProperties = true;
+    } else if (key === prefixed('choice')) {
+        processChoice(src, parent, key);
     }
 
-    // документация по элементу
-    doc = dig(element, "annotation", "documentation")
-
-
+    // определить имя элемента
     if (element["@name"]) {
         name = element["@name"];
     }
+
+    // определить тип элемента
     if (element["@type"]) {
         type = element["@type"];
-    }
-    else if ((element["@name"]) && (simpleType = dig(element, "simpleType", "restriction"))) {
+    } else if ((element["@name"]) && (simpleType = dig(element, "simpleType", "restriction"))) {
         type = simpleType["@base"];
         // скопировать аннотацию в тип, чтобы он тоже содержал описание
         // TODO: надо ли оно?
         simpleType[prefixed("annotation")] = dig(element, "simpleType", "annotation");
-    }
-    else if ((element["@name"]) && (simpleType = dig(element, "restriction"))) {
+    } else if ((element["@name"]) && (simpleType = dig(element, "restriction"))) {
         type = simpleType["@base"];
         // скопировать аннотацию в тип, чтобы он тоже содержал описание
         // TODO: надо ли оно?
         simpleType[prefixed("annotation")] = dig(element, "annotation");
-    }
-    else if ((type = dig(element, "extension", "@base"))) {
+    } else if ((type = dig(element, "extension", "@base"))) {
         const tempType = finaliseType(mapType(type));
         if (!tempType["$ref"]) {
             name = "#text"; // see anonymous types
-        }
-        else {
+        } else {
             var oldP = clone(target);
             oldP.additionalProperties = true;
             for (let v in target) {
@@ -396,20 +369,18 @@ function doElement(src, parent, key) {
             name = '#';
             inAllOf = 0; //target.allOf.length-1;
         }
-    }
-    else if ((type = dig(element, "union", "@memberTypes"))) {
+    } else if ((type = dig(element, "union", "@memberTypes"))) {
         type = type.split(' ');
-    }
-    else if (element[prefixed("list")]) {
+    } else if (element[prefixed("list")]) {
         type = 'string';
-    }
-    else if (element["@ref"]) {
+    } else if (element["@ref"]) {
         name = element["@ref"];
         type = element["@ref"];
     } else {
         type = 'object';
     }
 
+    // если обрабатываем элемент
     if (name && type) {
         let isAttribute = (element["@isAttr"] === true);
 
@@ -435,6 +406,8 @@ function doElement(src, parent, key) {
             typeData.type = 'string'; // handle case where attribute has no defined type
         }
 
+        // документация по элементу
+        let doc = dig(element, "annotation", "documentation");
         if (doc) {
             typeData.description = doc;
         }
@@ -486,8 +459,7 @@ function doElement(src, parent, key) {
                 }
             }
             if (!typeData.description) delete typeData.description;
-        }
-        else {
+        } else {
             typeData = finaliseType(typeData);
         }
 
@@ -516,12 +488,10 @@ function doElement(src, parent, key) {
         if (inAllOf >= 0) {
             if (typeData.$ref) target.allOf[inAllOf].$ref = typeData["$ref"]
             else delete target.allOf[inAllOf].$ref;
-        }
-        else if (inAnyOf >= 0) {
+        } else if (inAnyOf >= 0) {
             if (typeData.$ref) target.anyOf[inAnyOf].$ref = typeData["$ref"]
             else delete target.anyOf[inAnyOf].$ref;
-        }
-        else {
+        } else {
             if (!target.type) target.type = 'object';
             target.properties[name] = typeData; // Object.assign 'corrupts' property ordering
         }
@@ -564,22 +534,49 @@ function moveAttributes(obj, parent, key) {
 }
 
 function processChoice(obj, parent, key) {
-    if (key !== prefixed('choice')) return;
+    if (key !== prefixed('choice') || target["__hasChoice__"]) return;
+    target["__hasChoice__"] = true;
 
     // если чойсов больше 1 на одном уровне, то будет массив из чойсов
-    const choices = toArray(dig(obj, 'choice'));
+    const choices = toArray(obj[key]);
 
-    choices.forEach(choice => {
+    choices.forEach((choice, i) => {
+        const oneOf = [];
+        const elems = [];
+
+        // добавить вариант для каждого элемента отдельно
+        // TODO: группа с чойсе сейчас не факт что обрабатывается корректно
         ["element", "group"].forEach(element => {
             if (choice[prefixed(element)]) {
                 let e = choice[prefixed(element)] = toArray(choice[prefixed(element)]);
                 for (let i = 0; i < e.length; i++) {
                     if (!e[i]["@isAttr"]) {
+                        oneOf.push({
+                            required: [e[i]["@name"]]
+                        });
+                        elems.push(e[i]["@name"]);
                         e[i]["@isChoice"] = true;
                     }
                 }
             }
         });
+
+        // если чойс опциональный - нужно добавить пустой вариант
+        if (choice['@minOccurs'] === '0') {
+            const properties = {};
+            for (let elem of elems) properties[elem] = false;
+            oneOf.push({properties});
+        }
+
+        // добавить получившийся чойс в конечный объект
+        if (choices.length === 1) {
+            target.oneOf = oneOf;
+        } else {
+            if (!target.allOf) {
+                target.allOf = [];
+            }
+            target.allOf.push({oneOf});
+        }
     });
 }
 
@@ -589,8 +586,7 @@ function renameObjects(obj, parent, key) {
     const name = obj["@name"];
     if (name) {
         rename(obj, key, name);
-    }
-    else debuglog('complexType with no name');
+    } else debuglog('complexType with no name');
 }
 
 function removeUnique(obj, parent, key) {
@@ -611,6 +607,7 @@ function moveProperties(obj, parent, key) {
 function clean(obj, parent, key) {
     if (key == '@name') delete obj[key];
     if (key == '@type') delete obj[key];
+    if (key == '__hasChoice__') delete obj[key];
     if (key == xsPrefix + "attribute") delete obj[key];
     if (key == xsPrefix + "restriction") delete obj[key];
     if (key == xsPrefix + "annotation") delete obj[key];
@@ -623,8 +620,7 @@ function clean(obj, parent, key) {
         var newI = {};
         if (obj.properties["$ref"]) {
             newI["$ref"] = obj.properties["$ref"];
-        }
-        else if (Object.keys(obj.properties).length > 0) {
+        } else if (Object.keys(obj.properties).length > 0) {
             newI.properties = obj.properties;
             newI.required = obj.required;
         }
@@ -664,23 +660,20 @@ function removeEmpties(obj, parent, key) {
             }
         }
         count++;
-    }
-    else {
+    } else {
         if (Array.isArray(obj[key])) {
             let newArray = [];
             for (var i = 0; i < obj[key].length; i++) {
                 if (typeof obj[key][i] !== 'undefined') {
                     newArray.push(obj[key][i]);
-                }
-                else {
+                } else {
                     count++;
                 }
             }
             if (newArray.length === 0) {
                 delete obj[key];
                 count++;
-            }
-            else {
+            } else {
                 obj[key] = newArray;
             }
         }
@@ -771,10 +764,6 @@ module.exports = {
             moveAttributes(src, parent, key);
         });
 
-        recurse(src, {}, function (src, parent, key) {
-            processChoice(src, parent, key);
-        });
-
         // Удалить конструкцию unique (в данный момент не поддерживается jsonschema)
         recurse(src, {}, function (src, parent, key) {
             removeUnique(src, parent, key);
@@ -796,7 +785,7 @@ module.exports = {
         obj.$schema = 'http://json-schema.org/schema#'; //for latest, or 'http://json-schema.org/draft-04/schema#' for v4
         obj.type = 'object';
         if (id) {
-            obj.id = id;
+            obj.$id = id;
         }
         if (src[xsPrefix + "schema"] && src[xsPrefix + "schema"][xsPrefix + "annotation"]) {
             obj.description = '';
@@ -805,8 +794,7 @@ module.exports = {
                 var annotation = src[xsPrefix + "schema"][xsPrefix + "annotation"][a];
                 if ((annotation[xsPrefix + "documentation"]) && (annotation[xsPrefix + "documentation"]["#text"])) {
                     obj.description += (obj.description ? '\n' : '') + annotation[xsPrefix + "documentation"]["#text"];
-                }
-                else {
+                } else {
                     if (annotation[xsPrefix + "documentation"]) obj.description += (obj.description ? '\n' : '') + annotation[xsPrefix + "documentation"];
                 }
             }
